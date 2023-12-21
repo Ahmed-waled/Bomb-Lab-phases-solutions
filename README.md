@@ -65,6 +65,39 @@ then, the answer for ```phase 2``` is : ```{1, 2, 4, 8, 16, 32}```
 - line ```400f60```:
 -   calling ```scanf``` function returns number of arugments which are succesfully read from the user. Saving the return value in ```%eax``` and comparing it with ```1``` to be greater than, which deduces that the input must be more than one input 
 
+let's assume we input three number: ```{4, 2, 7}``` to discover where are they stored
+
+![image](https://github.com/Ahmed-waled/Bomb-Lab-phases-solutions/assets/103792966/0a7cdba3-409b-4aa2-a496-af7d9990d494)
+
+now we can deduce from line ```400f6a``` that we are comparing our first input with ```7```, and the ```ja``` instruction indicates that our value neither negative nor greater than 7.
+
+So, our first value is in range from 0 to 7.
+
+-line ```400f71```:
+  register ```%rax``` now holds the value of the first input.
+- line ```400f75```:
+  we jump to spcific line depending of the value of our input scaling by ```8```.
+
+  we can see the current instruction from our debugger
+  ![image](https://github.com/Ahmed-waled/Bomb-Lab-phases-solutions/assets/103792966/fed2e607-eac4-4787-9211-36c9b0e5e6a6)
+  now ```%eax``` holds ```0x185``` value in hex which is equivilant to ```398```.
+- line ```400fbe```:
+  we compare ```0xc(%rsp)``` with the value we stored in ```%rax```.
+
+  let's see what ```0xc(%rsp)``` holds:
+
+  ![image](https://github.com/Ahmed-waled/Bomb-Lab-phases-solutions/assets/103792966/da42856b-7251-4653-9a05-6789e8e5f781)
+  we can see it holds our second input.
+
+  So, to not let the bomb explode we should have our next input equals ```398```.
+Now, we have a clear vision about ```phase_3``` code.
+
+it actually implements a switch case with having our first input as the case number,  and the second value holds the value which stored in ```%eax``` register
+
+if we went through all the ```8``` possible values we will get the following valid solutions for ```phase 3```:
+  
+
+  
 
 
 
