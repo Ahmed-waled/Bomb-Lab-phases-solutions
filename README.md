@@ -73,13 +73,14 @@ now we can deduce from line ```400f6a``` that we are comparing our first input w
 
 So, our first value is in range from 0 to 7.
 
--line ```400f71```:
+- line ```400f71```:
   register ```%rax``` now holds the value of the first input.
 - line ```400f75```:
   we jump to spcific line depending of the value of our input scaling by ```8```.
 
   we can see the current instruction from our debugger
   ![image](https://github.com/Ahmed-waled/Bomb-Lab-phases-solutions/assets/103792966/fed2e607-eac4-4787-9211-36c9b0e5e6a6)
+  
   now ```%eax``` holds ```0x185``` value in hex which is equivilant to ```398```.
 - line ```400fbe```:
   we compare ```0xc(%rsp)``` with the value we stored in ```%rax```.
@@ -87,14 +88,117 @@ So, our first value is in range from 0 to 7.
   let's see what ```0xc(%rsp)``` holds:
 
   ![image](https://github.com/Ahmed-waled/Bomb-Lab-phases-solutions/assets/103792966/da42856b-7251-4653-9a05-6789e8e5f781)
+  
   we can see it holds our second input.
 
   So, to not let the bomb explode we should have our next input equals ```398```.
 Now, we have a clear vision about ```phase_3``` code.
 
-it actually implements a switch case with having our first input as the case number,  and the second value holds the value which stored in ```%eax``` register
+it implements a ```switch case``` while having the first input as the case number,  and the second value holds the value which stored in ```%eax``` register.
 
 if we went through all the ```8``` possible values we will get the following valid solutions for ```phase 3```:
+
+| first input | second input | line excuted  |
+| :---------: | :----------: | :----------:  |
+| 0           | 207          |  ```400f7c``` |
+| 1           | 311          |  ```400fb9``` |
+| 2           | 707          |  ```400f83``` |
+| 3           | 256          |  ```400f8a``` |
+| 4           | 389          |  ```400f91``` |
+| 5           | 206          |  ```400f98``` |
+| 6           | 682          |  ```400f9f``` |
+| 7           | 327          |  ```400fa6``` |
+
+![image](https://github.com/Ahmed-waled/Bomb-Lab-phases-solutions/assets/103792966/c10ec62f-ec75-48ae-b57a-fff90243ade8)
+
+
+# phase 4
+Below is the assembly code for ```phase_4```
+![image](https://github.com/Ahmed-waled/Bomb-Lab-phases-solutions/assets/103792966/6316e5af-ceba-4d70-bc6c-9bd3b2f2b82a)
+
+As usual, we can see same instructions applied for ```Phase_4``` in terms of input, the only different here in line ```401029```. We can see the next line instuction ```jne``` indicates that this time we must only input ```2``` integers ,```phase_3``` has no restrictions on the number of input arguments except, they must be more than one input.
+
+- line ```40102e```:
+    We now that ```0x8(%rsp)``` holds the value of the first input, as before in ```phase_3```, and it also must be below than or equal to ```$0xe``` which is ```14```. So, first argument must have value in range ```0 - 14```.
+
+- From line ```40103a``` till line ```401044```:
+   Registers ```$%edx``` and ```%esi``` holds the values ```14``` and ```0``` respectievly. Register ```%edi``` holds our first input.
+- line ```401048```:
+   We are calling some function called ```func4```, before going in details of ```func4``` implementation, we can notice in line ```40104d``` that we test the value of ```%eax``` with itself, and if the value isn't equal to zero, the bomb will explode. So, in order to have keep the bomb unexploded, either the return value of ```func4``` must be zero, or we do some operations which must lead to have ```0``` in ```%eax``` register.
+
+Below is the assembly code for ```func4```.
+![image](https://github.com/Ahmed-waled/Bomb-Lab-phases-solutions/assets/103792966/01e01051-50d5-49e1-87af-eb952920a46f)
+
+The function details is quite confusing, but we know there is recursion in our function. Let's focus on our main goal to have ```%eax``` holding value ```0```.
+
+We can see that line ```400ff2``` moving ```0``` to ```%eax```, then we must know how to lead the function to go there.
+
+- line ```400fd2``` till ```400fe2```:
+  
+  There are some operations on our registers.
+    - Subtracting value stored ```%esi``` from ```$edx``` and storing in ```%eax```, which is actually ```14```, because we set intial values to them before calling ```func4```.
+    - Afterwards, ```%ecx``` holds our value, shifting it right ```0x1f``` times, which equals to ```31```. In other words, resetting the value of ```%ecx``` to ```0```.
+    - Shifting right ```%eax``` on time, dividing by ```2```.
+    - Add ```%eax``` to ```%rsi``` and saving in ```%ecx```.
+      
+  Actually, these operations seems fimiliar:
+    - We set a ```low``` and ```high``` variables, ```%esi``` and ```edx```.
+    - we subtract ```low``` from ```high``` and divide by ```2```.
+    - add ```low``` again.
+  
+  This is actually how we get the ```mid``` variable in ```Binary Search``` algorithm.
+
+  ```mid = low + (high - low) / 2;```
+  So, in fact, ```func4``` implements a ```binary search``` algorithm, and ```$ecx```, in other words the ```mid``` variable, holds ```7``` in the first iteration.
+
+- line ```400fe2```:
+  comparing the first input stored in ```%edx``` with the ```mid``` value, which is ```7```.
+  If it's less than or equal we jump to the part where we set ```%eax``` to ```0```.
+- line ```400ff7```:
+  we compare our first input again with ```%esi```, which is the ```mid```. If the value is greater or equal, we succssfully end our function and returns with ```%eax``` = ```0```
+
+So by having our first input equals to ```7```, we can easily reach the end of our function, having ```%eax``` equals to ```0```, which we intented from the beginning, returning to function ```phase_4```.
+
+- back to line ```40104d```:
+  here we said we compare ```%eax``` with itself, and since value in ```%eax``` is ```0``` now, the bomb won't explode until now.
+- line ```401051```:
+  this line actually is very straight forward. We compare our second input with ```0```, and the bomb will explode if they aren't equal. So, our second input must be ```0```.
+
+So an answer which is valid to solve ```phase 4```, is ```7 0```.
+
+![image](https://github.com/Ahmed-waled/Bomb-Lab-phases-solutions/assets/103792966/cf5a820b-c5a0-433b-8bac-e51fc3ee957a)
+
+<details>
+    <summary>Bonus</summary>
+    
+There are actually four values for the first input that also solves ```phase 4```, try guessing them!
+
+<details>
+  <summary>Hint</summary>
+
+Try coding this function in any language, and choose the values that always validiate the first codition in line ```400fe4```.
+
+</details>
+
+<details>
+  <summary>Solution</summary>
+
+Always aim to have the first condition in line ```400fe4``` true, that will lead always register ```%eax``` to have ```0```, if we carefully tried some values, we can see that ```0 1 3 7``` always trigger the left subtree. 
+
+**Why specifically these values work?**
+
+As we shift right each time by ```1```, ```mid``` will have first value of ```7``` then ```3``` then ```1``` and last value will be ```0```.
+
+</details>
+
+</details>
+ 
+
+
+
+
+  
+
   
 
   
