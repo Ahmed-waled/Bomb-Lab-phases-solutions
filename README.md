@@ -2,6 +2,8 @@
 # Tools used
 * IDA deassembler
 * gdb debugger
+
+***
 # Phase 1
 Below is the assembly code for function ```phase_1```
 ![image](https://github.com/Ahmed-waled/Bomb-Lab-phases-solutions/assets/103792966/0f151010-ca0f-4040-ba32-c99dbf631bc1)
@@ -23,6 +25,7 @@ The image above show our answer for ```phase 1```.
 
 ![image](https://github.com/Ahmed-waled/Bomb-Lab-phases-solutions/assets/103792966/8e3fcf40-69ae-4b27-8705-17e19cceb383)
 
+***
 # Phase 2
 Below is the assembly code for function ```phase_2```.
 ![image](https://github.com/Ahmed-waled/Bomb-Lab-phases-solutions/assets/103792966/43d86e0b-f3c1-4ddc-94ca-2cd94be98c97)
@@ -56,6 +59,7 @@ then, the answer for ```phase 2``` is : ```{1, 2, 4, 8, 16, 32}```
 
 ![image](https://github.com/Ahmed-waled/Bomb-Lab-phases-solutions/assets/103792966/9b236dcc-3767-43ae-8bae-ab212cb353c1)
 
+***
  # Phase 3
  Below is the assembly code for function ```phase_3```.
 ![image](https://github.com/Ahmed-waled/Bomb-Lab-phases-solutions/assets/103792966/853d554f-41f4-4d5a-8be9-08512dc4393e)
@@ -112,6 +116,7 @@ if we went through all the ```8``` possible values we will get the following val
 ![image](https://github.com/Ahmed-waled/Bomb-Lab-phases-solutions/assets/103792966/c10ec62f-ec75-48ae-b57a-fff90243ade8)
 
 
+***
 # phase 4
 Below is the assembly code for ```phase_4```
 ![image](https://github.com/Ahmed-waled/Bomb-Lab-phases-solutions/assets/103792966/6316e5af-ceba-4d70-bc6c-9bd3b2f2b82a)
@@ -192,7 +197,130 @@ As we shift right each time by ```1```, ```mid``` will have first value of ```7`
 </details>
 
 </details>
- 
+
+***
+# phase 5
+
+Below is the assembly code for ```phase_5```
+
+![image](https://github.com/Ahmed-waled/Bomb-Lab-phases-solutions/assets/103792966/d507aaa4-0ed2-4bf8-8e89-61eb7340eb23)
+
+- line ```40107a```:
+  Calling function ```string_length``` indicates that our input consists of string and we calculate its length.
+
+
+- line ```40107f```:
+  comparing the input string's length with ```6```, this implies our input consists of 6 chars, otherwise the bomb will explode, now we jump to line ```4010d2```.
+
+let's try some string like ```"abcdef"```
+
+- line ```4010d2```:
+  Setting ```%eax``` back to ```0```, and jump to line ```40108b```.
+- line ```40108b```:
+  it seems we are moving byte address to register ```%ecx```. let's see what is stored now in ```%ecx```.
+
+![image](https://github.com/Ahmed-waled/Bomb-Lab-phases-solutions/assets/103792966/c3b93ffc-9b63-463c-9f15-1ee365ebc8d6)
+  
+It's clear that ```$ecx``` holds our first character, which means this is a loop which iterates over our input string character by character.
+
+- line ```401096```:
+  our character is saved in register ```%edx```, ANDing with ```0xf```, ```15``` in decimal, means we deduce the first 4 bits in our character. In case of ```a```,  the value is ```1```.
+
+  ![image](https://github.com/Ahmed-waled/Bomb-Lab-phases-solutions/assets/103792966/d5d22517-ee87-4f0e-bc56-cf15a718e623)
+
+- line ```401099```:
+  we move value stored in some memory address with offset value in ```%rdx``` to ```%edx```. Let's see what value now stored in ```%edx```.
+
+  ![image](https://github.com/Ahmed-waled/Bomb-Lab-phases-solutions/assets/103792966/16002b17-154c-4bc1-af91-45335719d5a4)
+
+  So it seems we didn't do nothing, but consider the value stored in ```%edx``` in the second iteration.
+  
+  ![image](https://github.com/Ahmed-waled/Bomb-Lab-phases-solutions/assets/103792966/58b8cd89-e3af-4554-9178-38ff71ba2c0c)
+
+  now it seems we figured our what is happening. This is actually an encoding process, where we input a character and map it to another character stored in array at some address.
+
+- in line ```4010a0```:
+  we store these character in another address.
+
+- line ```4010bd```:
+  we call ```strings_not_equal``` function, so now we know what ```phase 5``` does.
+    - we input string.
+    - encode each character to another character.
+    - and check if our encoded string match the stored string.
+
+So, in order to solve this mystery, we must know what is the stored string, and begin a decode process to retrive the input and that's the answer for this phase.
+
+We can use command ```x /c 0x40204b0 + "index" ``` to get each character.
+
+here is an example:
+
+  ![image](https://github.com/Ahmed-waled/Bomb-Lab-phases-solutions/assets/103792966/e100efd7-1c9d-4047-badf-ab9098c000ae)
+
+  
+Below is the character stored in each index of the econding array:
+| index  | character |
+| :---:  | :-------: |
+| 0      | 'm'       |
+| 1      | 'a'       |
+| 2      | 'd'       |
+| 3      | 'u'       |
+| 4      | 'i'       |
+| 5      | 'e'       |
+| 6      | 'r'       |
+| 7      | 's'       |
+| 8      | 'n'       |
+| 9      | 'f'       |
+| 10     | 'o'       |
+| 11     | 't'       |
+| 12     | 'v'       |
+| 13     | 'b'       |
+| 14     | 'y'       |
+| 15     | 'l'       |
+
+in line ```4010b3```, memory address for the stored string is ```0x40245e```. So, we can know each character with the same instruction we did to get but change the address value.
+
+Example:
+
+![image](https://github.com/Ahmed-waled/Bomb-Lab-phases-solutions/assets/103792966/f3e60539-5bbc-43bc-9af5-93c882880451)
+
+Below is the characters of the stored string:
+
+| index  | character |
+| :---:  | :-------: |
+| 0      | 'f'       |
+| 1      | 'l'       |
+| 2      | 'y'       |
+| 3      | 'e'       |
+| 4      | 'r'       |
+| 5      | 's'       |
+
+Now decoding each character
+
+| index  | character | decoded character index in the array | encoded character |
+| :---:  | :-------: | :----------------------------------: | :---------------: |
+| 0      | 'f'       | 9                                    | 'i'               |
+| 1      | 'l'       | 15                                   | 'o'               |
+| 2      | 'y'       | 14                                   | 'n'               |
+| 3      | 'e'       | 5                                    | 'e'               |
+| 4      | 'r'       | 6                                    | 'f'               | 
+| 5      | 's'       | 7                                    | 'g'               |
+
+So out answer is string ```"ionefg"```.
+
+For completeness, any case, either cpaital or small, for any letter will work as long it's the same character.
+
+![image](https://github.com/Ahmed-waled/Bomb-Lab-phases-solutions/assets/103792966/a7d54429-8dbd-4fe8-beff-3878d27d240e)
+
+***
+
+# phase 6
+
+
+
+
+
+
+  
 
 
 
