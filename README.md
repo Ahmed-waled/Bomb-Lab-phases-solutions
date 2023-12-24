@@ -1,11 +1,23 @@
+
 # Bomb-Lab-phases-solutions
+# Introduction
+The CMU bomb lab is a reverse engineering challenge, where the bomb has 6 phases to defuse. Providing the assembly code, we must go through each phase and understand its assembly to be able to defuse it.
+
+For more details and how to run the bomb lab on your device, refer to [this](https://www.cs.cmu.edu/afs/cs/academic/class/15213-s20/www/recitations/recitation04-bomblab.pdf).
+
+I will try my best explaining each phase **line** by **line**, to assure you fully understand each part.
 # Tools used
-* IDA deassembler
-* gdb debugger
+* GDB debugger (The main tool in our explanation).
+* IDA disassembler (optional, A graphical user-interface for visualizing the assembly code).
 
 ***
-
-# Phase 1
+> to extract the assembly code for the bomb lab follow these instructions:
+> - go to the directory which contains the bomb files.
+> - execute the command ```objdump -d /bomb```
+ 
+<details>
+	<summary>Phase 1</summary>
+	
 Below is the assembly code for function ```phase_1```
 ![image](https://github.com/Ahmed-waled/Bomb-Lab-phases-solutions/assets/103792966/0f151010-ca0f-4040-ba32-c99dbf631bc1)
 - line ```400ee9```:
@@ -22,8 +34,11 @@ The image above show our **answer** for ```phase 1```.
 
 ![image](https://github.com/Ahmed-waled/Bomb-Lab-phases-solutions/assets/103792966/8e3fcf40-69ae-4b27-8705-17e19cceb383)
 
-***
-# Phase 2
+</details>
+
+<details>
+	<summary>Phase 2</summary>
+	
 Below is the assembly code for function ```phase_2```.
 ![image](https://github.com/Ahmed-waled/Bomb-Lab-phases-solutions/assets/103792966/43d86e0b-f3c1-4ddc-94ca-2cd94be98c97)
 - line ```400f05```:
@@ -61,8 +76,12 @@ The **answer** for ```phase 2``` is : ```{1, 2, 4, 8, 16, 32}```
 
 ![image](https://github.com/Ahmed-waled/Bomb-Lab-phases-solutions/assets/103792966/9b236dcc-3767-43ae-8bae-ab212cb353c1)
 
-***
- # Phase 3
+</details>
+
+
+<details>
+ 	<summary>Phase 3</summary>
+	
  Below is the assembly code for function ```phase_3```.
 ![image](https://github.com/Ahmed-waled/Bomb-Lab-phases-solutions/assets/103792966/853d554f-41f4-4d5a-8be9-08512dc4393e)
 
@@ -124,9 +143,12 @@ If we went through all the ```8``` **possible** values we will get the following
 
 ![image](https://github.com/Ahmed-waled/Bomb-Lab-phases-solutions/assets/103792966/c10ec62f-ec75-48ae-b57a-fff90243ade8)
 
+</details>
 
-***
-# phase 4
+
+<details>
+	<summary>Phase 4</summary>
+	
 Below is the assembly code for ```phase_4```
 
 ![image](https://github.com/Ahmed-waled/Bomb-Lab-phases-solutions/assets/103792966/6316e5af-ceba-4d70-bc6c-9bd3b2f2b82a)
@@ -222,8 +244,12 @@ As we shift right each time by ```1```, ```mid``` will have first value of ```7`
 
 </details>
 
-***
-# phase 5
+</details>
+
+
+<details>
+	<summary>phase 5</summary>
+ 
 
 Below is the assembly code for ```phase_5```
 
@@ -349,9 +375,13 @@ So The **answer** is string ```"ionefg"```.
 
 ![image](https://github.com/Ahmed-waled/Bomb-Lab-phases-solutions/assets/103792966/a7d54429-8dbd-4fe8-beff-3878d27d240e)
 
-***
+</details>
 
-# phase 6
+
+<details>
+
+<summary>Phase 6</summary>
+
 <details>
   <summary>Motivation</summary>
   Before going through this phase, I should mention that this phase was the **hardest one** among all the other phases. 
@@ -544,7 +574,7 @@ if our value **not equal** to ```1```:
 
 >If it's a linked list, then we **constructed** it using **```strcut```**, that consists of pointer and integer. 
 >We know that **pointers** holds ```8``` **bytes** of memory,  and **integer** requires ```4``` **bytes**. So do we need ```12``` **bytes** to **move** in our **linked list**?
-Actually no, because in struct we don't add bytes, struct is **organized** in memory by **technique** called ```padding```, you can refer to this [Padding in c]([https://pages.github.com/](https://www.javatpoint.com/structure-padding-in-c#:~:text=Structure%20padding%20is%20a%20concept,create%20a%20user%2Ddefined%20structure.)https://www.javatpoint.com/structure-padding-in-c#:~:text=Structure%20padding%20is%20a%20concept,create%20a%20user%2Ddefined%20structure.).
+Actually no, because in struct we don't add bytes, struct is **organized** in memory by **technique** called ```padding```, you can refer to this [Padding in c](https://www.geeksforgeeks.org/structure-member-alignment-padding-and-data-packing/).
 
   >So in fact we need ```16``` bytes to be able to reach the second node.
 
@@ -670,6 +700,6 @@ The last part of our journey 😌
   ![image](https://github.com/Ahmed-waled/Bomb-Lab-phases-solutions/assets/103792966/fb008deb-7f2c-471b-954a-a4741b8b7743)
 
   
-  
+  </details>
 
 
